@@ -1,0 +1,116 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Animation</title>
+</head>
+<body>
+    <h1>Race Animation</h1>
+    <div>
+        {{ animation_html | safe }}
+    </div>
+</body>
+</html>
+ -->
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Race Progression</title>
+     <link rel="stylesheet" href="/static/styles.css">
+     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+ </head>
+ <body>
+     <h1>Race Progression</h1>
+     <div id="main-container">
+         <!-- Dropdown box and Back to Menu button -->
+         <div id="dropdown-box">
+             <h3>Change Race</h3>
+             <label for="year-dropdown">Select Year:</label>
+             <select id="year-dropdown">
+                 <option value="">-- Select a Year --</option>
+                 {% for year in years %}
+                 <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                 {% endfor %}
+             </select>
+             
+             <label for="race-dropdown">Select Race:</label>
+             <select id="race-dropdown">
+                 <option value="">-- Select a Race --</option>
+                 {% for race in races %}
+                 <option value="{{ race['raceId'] }}" {% if race['raceId'] == current_raceId %}selected{% endif %}>{{ race['name'] }}</option>
+                 {% endfor %}
+             </select>
+             
+             <button id="view-animation">View Race</button>
+
+             <h3>Not Feeling Race Overviews?</h3>
+             <button id="back-button">Back to Menu</button>
+         </div>
+         
+         <!-- Graph section -->
+         <div id="graph-section">
+             <div id="graph-caption">
+                 <p>
+                     <strong>Navigation Instructions:</strong> 
+                     Use the play button below the graph to animate the race progression. 
+                     Drag the slider to view specific laps. Click on a driver's name in the legend 
+                     to view their individual line, or double click on a driver's name to toggle its visibility.
+                 </p>
+             </div>
+             <div id="graph-container">
+                 {{ plot_html | safe }}
+             </div>
+         </div>
+     </div>
+ 
+     <script>
+         // Handle "View Race" button click
+         document.getElementById("view-animation").addEventListener("click", () => {
+             const year = document.getElementById("year-dropdown").value;
+             const raceId = document.getElementById("race-dropdown").value;
+ 
+             if (year && raceId) {
+                 // Redirect to the animation page for the selected race
+                 window.location.href = `/animate?raceId=${raceId}`;
+             } else {
+                 alert("Please select both a year and a race.");
+             }
+         });
+ 
+         // Handle year dropdown change to populate races
+         document.getElementById("year-dropdown").addEventListener("change", async () => {
+             const year = document.getElementById("year-dropdown").value;
+             const raceDropdown = document.getElementById("race-dropdown");
+ 
+             if (year) {
+                 const response = await fetch(`/get-races?year=${year}`);
+                 const races = await response.json();
+                 raceDropdown.innerHTML = `<option value="">-- Select a Race --</option>`;
+                 races.forEach(race => {
+                     const option = document.createElement("option");
+                     option.value = race.raceId;
+                     option.textContent = race.name;
+                     raceDropdown.appendChild(option);
+                 });
+             } else {
+                 raceDropdown.innerHTML = `<option value="">-- Select a Race --</option>`;
+             }
+         });
+ 
+         // Back button functionality
+         document.getElementById("back-button").addEventListener("click", () => {
+             window.location.href = "/";
+         });
+     </script>
+ </body>
+ </html>
+ 
+ 
+ 
+ 
+
+ 
